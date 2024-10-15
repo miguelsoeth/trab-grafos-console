@@ -52,6 +52,86 @@ class Grafo {
         }
         return null;
     }
+
+    // encontrarRelacionamentosProximosComLimite(ator1, ator2, limite = 8) {
+    //     const visitados = new Set();
+    //     const fila = [[ator1]];
+        
+    //     const caminhosEncontrados = [];
+    
+    //     while (fila.length > 0) {
+    //         const caminho = fila.shift();
+    //         const ultimoVertice = caminho[caminho.length - 1];
+    
+    //         // Se o comprimento do caminho excede o limite, não continuamos
+    //         if (caminho.length > limite + 1) {
+    //             continue;
+    //         }
+    
+    //         if (ultimoVertice === ator2) {
+    //             caminhosEncontrados.push(caminho);
+    //         }
+    
+    //         // Marcar o último vértice como visitado
+    //         visitados.add(ultimoVertice);
+    
+    //         for (let vizinho in this.vertices[ultimoVertice]) {
+    //             // Permitir revisitar o ator2, mas não ator1 e não o último vértice
+    //             if (!visitados.has(vizinho) || vizinho === ator2) {
+    //                 const novoCaminho = [...caminho, vizinho];
+    //                 fila.push(novoCaminho);
+    //             }
+    //         }
+    
+    //         // Desmarcar o último vértice para permitir novos caminhos
+    //         visitados.delete(ultimoVertice);
+    //     }
+        
+    //     const uniquePaths = Array.from(new Set(caminhosEncontrados.map(JSON.stringify))).map(JSON.parse);
+    //     return caminhosEncontrados;
+    // }
+    
+
+    encontrarRelacionamentosProximosComLimite(ator1, ator2, limite = 8) {
+        const visitados = {};
+        const fila = [[ator1]];
+    
+        const caminhosEncontrados = [];
+    
+        while (fila.length > 0) {
+            const caminho = fila.shift();
+            const ultimoVertice = caminho[caminho.length - 1];
+    
+            // Se o comprimento do caminho excede o limite, não continuamos
+            if (caminho.length > limite + 1) {
+                continue;
+            }
+    
+            if (ultimoVertice === ator2) {
+                caminhosEncontrados.push(caminho);
+                //console.log("\nCAMINHO: " + caminho);
+            }
+    
+            // Marcar o último vértice como visitado
+            visitados[ultimoVertice] = true;
+    
+            for (let vizinho in this.vertices[ultimoVertice]) {
+                // Permitir revisitar o ator2, mas não ator1
+                if (!visitados[vizinho] || vizinho === ator2) {
+                    const novoCaminho = [...caminho, vizinho];
+                    fila.push(novoCaminho);
+                }
+            }
+    
+            // Desmarcar o último vértice como visitado para explorar novos caminhos
+            //visitados[ultimoVertice] = false;
+
+
+            //console.log(visitados);
+        }
+    
+        return caminhosEncontrados;
+    }
 }
 
 function getUniqueActors(movies) {
@@ -87,12 +167,13 @@ fs.readFile('./latest_movies.json', 'utf8', (err, data) => {
         });
     });
 
-    const ator1 = "Rebecca Hall";
-    const ator2 = "Timothée Chalamet";
-    console.log(`\nRelacionamento mais próximo entre ${ator1} e ${ator2}:`);
-    const relacionamento = grafo.encontrarRelacionamentoMaisProximo(ator1, ator2);
+    const ator1 = "Zendaya";
+    const ator2 = "John Cena";
 
     console.log(`Número de atores: ${actors.length}`);
 
-    console.log(relacionamento);
+    const relaci8 = grafo.encontrarRelacionamentosProximosComLimite(ator1, ator2, 8);
+    console.log(relaci8);
+
+    console.log("QUANTIDADE DE RESULTADOS: "+relaci8.length)
 });
