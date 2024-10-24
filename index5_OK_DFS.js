@@ -150,82 +150,34 @@ class Grafo {
 
     contarVertices() {
         return Object.keys(this.vertices).length;
-    }
+    }    
 
-    encontrarTodosOsCaminhos(ator1, ator2, maxTamanho) {
-        const caminhos = [];
-        const fila = [[ator1]];
-        const visitados = new Set();
-        let iterationCount = 0; // To log the iteration steps
-    
-        while (fila.length > 0) {
-            const caminhoAtual = fila.shift();
-            const verticeAtual = caminhoAtual[caminhoAtual.length - 1];
-    
-            iterationCount++;
-            //console.log(`Iteração: ${iterationCount}, Fila atual: ${fila.length}, Caminho: ${caminhoAtual}`);
-            //console.log(`Iteração: ${iterationCount}, Fila atual: ${fila.length}`);
-    
-            if (caminhoAtual.length > maxTamanho) {
-                console.log(`Caminho excedeu o tamanho máximo (${maxTamanho}), continuando...`);
-                continue;
+    encontrarTodosCaminhos(ator1, ator2, profundidadeMaxima = 8) {
+        const todosCaminhos = [];
+        const caminhoAtual = [ator1];
+
+        const dfs = (vertice, profundidade) => {
+            if (profundidade > profundidadeMaxima) {
+                return; // Se a profundidade máxima for alcançada, retorna
             }
-    
-            if (verticeAtual === ator2) {
-                caminhos.push(caminhoAtual);
-                process.stdout.write(`Encontrado! ${caminhos.length}.`);
-                continue;
-            } else {
-                //process.stdout.write(`Não encontrado!`);
+
+            if (vertice === ator2) {
+                todosCaminhos.push([...caminhoAtual]); // Armazena o caminho encontrado
+                return;
             }
-    
-            // Mark the current vertex as visited after dequeuing it
-            visitados.add(verticeAtual);
-    
-            for (let vizinho in this.vertices[verticeAtual]) {
-                if (!visitados.has(vizinho)) {
-                    fila.push([...caminhoAtual, vizinho]);
-                    //console.log(`Adicionando caminho: ${[...caminhoAtual, vizinho]}`);
+
+            for (let vizinho in this.vertices[vertice]) {
+                if (!caminhoAtual.includes(vizinho)) { // Evita ciclos
+                    caminhoAtual.push(vizinho); // Adiciona o vizinho ao caminho
+                    dfs(vizinho, profundidade + 1); // Chama DFS recursivamente
+                    caminhoAtual.pop(); // Remove o vizinho do caminho após a chamada
                 }
             }
-        }
-    
-        console.log(`Número total de iterações: ${iterationCount}`);
-        return caminhos;
-    }
+        };
 
-    encontrarTodosOsCaminhos2(ator1, ator2, limite = 8) {
-        const fila = [[ator1]];
-    
-        const caminhosEncontrados = [];
-    
-        while (fila.length > 0) {
-            const caminho = fila.shift();
-            const ultimoVertice = caminho[caminho.length - 1];
-    
-            if (caminho.length > limite + 1) {
-                process.stdout.write("#");
-                continue;
-            }
-    
-            if (ultimoVertice === ator2) {
-                caminhosEncontrados.push(caminho);
-                process.stdout.write(`${caminhosEncontrados.length}`);
-            }
-            else {
-                process.stdout.write(".");
-            }           
-
-    
-            for (let vizinho in this.vertices[ultimoVertice]) {
-                    const novoCaminho = [...caminho, vizinho];
-                    fila.push(novoCaminho);
-            }
-        }
-    
-        return caminhosEncontrados;
+        dfs(ator1, 0); // Inicia a DFS a partir do ator1
+        return todosCaminhos;
     }
-    
 }
 
 function getUniqueActors(movies) {
@@ -291,14 +243,10 @@ fs.readFile('./latest_movies.json', 'utf8', (err, data) => {
     console.log(`Big O: ${subgraph2.bigO()}`);
     console.log("+++++++++++++++++++++++++++++");
     console.log(`No subgrafo de ${ator1}-${ator2}, encontrar todos caminhos com até 8 de profundidade:`);
-    //const paths = subgraph.encontrarRelacionamentosProximosSemRepetirAtores(ator1, ator2, subgraph.getAllActorsInGraph(actors), 8);
-    //const paths = subgraph.encontrarTodosOsCaminhos(ator1, ator2, 8);
-    //console.log(`Qntd de caminhos encontrados (Todos): ${paths.length}`);
-    //const paths2 = subgraph.encontrarRelacionamentosProximosSemRepetirAtores(ator1, ator2, subgraph.getAllActorsInGraph(actors), 8);
-    //console.log(`Qntd de caminhos encontrados (Sem repetir atores): ${paths2.length}`);
-    //saveResultToFile(paths);
-    //saveResultToFile2(paths2);
-
+    const todosCaminhos = grafo.encontrarTodosCaminhos(ator1, ator2, 8);
+    console.log(`Caminhos encontrados entre ${ator1} e ${ator2} com até 8 de profundidade:`);
+    console.log(todosCaminhos.length);
+    saveResultToFile(todosCaminhos.map(caminho => caminho.join(' -> ')));
 });
 
 
@@ -307,19 +255,6 @@ function saveResultToFile(dataToSave) {
     const stringData = dataToSave.join('\n');
 
     fs.writeFile('output.txt', stringData, (err) => {
-        if (err) {
-            console.error('Error writing to file:', err);
-        } else {
-            console.log('Data saved to output.txt');
-        }
-    });
-}
-
-function saveResultToFile2(dataToSave) {
-
-    const stringData = dataToSave.join('\n');
-
-    fs.writeFile('output_2.txt', stringData, (err) => {
         if (err) {
             console.error('Error writing to file:', err);
         } else {

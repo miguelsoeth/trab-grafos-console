@@ -4,14 +4,26 @@
       "cast": [
         "Zendaya",
         "Timothee Chalamet",
-        "Oscar Isaac"
+        "Oscar Isaac",
+        "John Cena"
       ]
     },
     {
       "title": "SPIDER-MAN",
       "cast": [
         "Zendaya",
-        "Tom Holland"
+        "Tom Holland",
+        "John Cena"
+      ]
+    }
+    ,
+    {
+      "title": "FILME B",
+      "cast": [
+        "Oscar Isaac",
+        "Tom Holland",
+        "Emma Stone",
+        "Zendaya"
       ]
     }
   ]

@@ -377,8 +377,8 @@ fs.readFile('./latest_movies.json', 'utf8', (err, data) => {
     console.log("QUANTIDADE DE ATORES NO SUBGRAFO: "+actorsInSubgraph.length);
     console.log("QUANTIDADE DE FILMES NO SUBGRAFO: "+moviesInSubgraph.length);
 
-    const subRelation = subgraph.encontrarRelacionamentosProximosSemRepetirAtorInicialEFinal(ator1, ator2, 8);
-    console.log("QUANTIDADE DE CAMINHO NO SUBGRAFO: "+subRelation.length);
+    const subRelation = grafo.encontrarRelacionamentoMaisProximo(ator1, ator2);
+    console.log("QUANTIDADE DE CAMINHO NO SUBGRAFO: "+subRelation);
 
     //const relaci8 = grafo.encontrarRelacionamentosProximosSemRepetir(ator1, ator2, 8);
     //.log("QUANTIDADE DE RESULTADOS (SEM REPETIR): "+relaci8.length);
