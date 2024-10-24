@@ -62,7 +62,6 @@ class Grafo {
         return profundidadeMaxima;
     }
 
-    // New method to extract subgraph with max depth 8
     extrairSubgrafo(verticeInicial, profundidadeMaxima = 8) {
         const queue = [[verticeInicial, 0]];  // Tuplas [vértice, profundidade]
         const visitado = new Set([verticeInicial]);
@@ -115,146 +114,60 @@ class Grafo {
         return null;
     }
 
-    // encontrarRelacionamentosProximosComLimite(ator1, ator2, limite = 8) {
-    //     const visitados = new Set();
-    //     const fila = [[ator1]];
-        
-    //     const caminhosEncontrados = [];
-    
-    //     while (fila.length > 0) {
-    //         const caminho = fila.shift();
-    //         const ultimoVertice = caminho[caminho.length - 1];
-    
-    //         // Se o comprimento do caminho excede o limite, não continuamos
-    //         if (caminho.length > limite + 1) {
-    //             continue;
-    //         }
-    
-    //         if (ultimoVertice === ator2) {
-    //             caminhosEncontrados.push(caminho);
-    //         }
-    
-    //         // Marcar o último vértice como visitado
-    //         visitados.add(ultimoVertice);
-    
-    //         for (let vizinho in this.vertices[ultimoVertice]) {
-    //             // Permitir revisitar o ator2, mas não ator1 e não o último vértice
-    //             if (!visitados.has(vizinho) || vizinho === ator2) {
-    //                 const novoCaminho = [...caminho, vizinho];
-    //                 fila.push(novoCaminho);
-    //             }
-    //         }
-    
-    //         // Desmarcar o último vértice para permitir novos caminhos
-    //         visitados.delete(ultimoVertice);
-    //     }
-        
-    //     const uniquePaths = Array.from(new Set(caminhosEncontrados.map(JSON.stringify))).map(JSON.parse);
-    //     return caminhosEncontrados;
-    // }
+    getAllActorsInGraph(actors) {
+        const actorsInGraph = [];
 
-    encontrarRelacionamentosProximosSemRepetir(ator1, ator2, limite = 8) {
-        const visitados = {};
-        const fila = [[ator1]];
-    
-        const caminhosEncontrados = [];
-    
-        while (fila.length > 0) {
-            const caminho = fila.shift();
-            const ultimoVertice = caminho[caminho.length - 1];
-    
-            if (caminho.length > limite + 1) {
-                continue;
+        for (const vertice in this.vertices) {
+            if (actors.includes(vertice)) {
+                actorsInGraph.push(vertice);
             }
-    
-            if (ultimoVertice === ator2) {
-                caminhosEncontrados.push(caminho);
-            }
-    
-            visitados[ultimoVertice] = true;
-    
-            for (let vizinho in this.vertices[ultimoVertice]) {
-                // Permitir revisitar o ator2, mas não ator1
-                if (!visitados[vizinho]) {
-                    const novoCaminho = [...caminho, vizinho];
-                    fila.push(novoCaminho);
-                }
-            }
-    
-            // Desmarcar o último vértice como visitado para explorar novos caminhos
-            //visitados[ultimoVertice] = false;
-
-
-            //console.log(visitados);
         }
-    
-        return caminhosEncontrados;
+
+        return actorsInGraph;
     }
 
-    encontrarRelacionamentosProximosSemRepetirAtorInicialEFinal(ator1, ator2, limite = 8) {
-        const visitados = {};
-        const fila = [[ator1]];
-    
-        const caminhosEncontrados = [];
-    
-        while (fila.length > 0) {
-            const caminho = fila.shift();
-            const ultimoVertice = caminho[caminho.length - 1];
-    
-            if (caminho.length > limite + 1) {
-                continue;
-            }
-    
-            if (ultimoVertice === ator2) {
-                caminhosEncontrados.push(caminho);
-            }
-    
-    
-            for (let vizinho in this.vertices[ultimoVertice]) {
-                if (vizinho === ator2 && caminho.length > 1) {
-                    const novoCaminho = [...caminho, vizinho];
-                    fila.push(novoCaminho);
-                } else if (vizinho !== ator1) {
-                    // Impedir voltar ao ator1 e não repetir vizinhos já no caminho
-                    const novoCaminho = [...caminho, vizinho];
-                    fila.push(novoCaminho);
-                }
+    getAllMoviesInGraph(movies) {
+        const moviesInGraph = [];
+        const movieSet = [];
+        movies.forEach(element => {            
+            movieSet.push(element.title);
+        });
+
+        for (const vertice in this.vertices) {
+            if (movieSet.includes(vertice)) {
+                moviesInGraph.push(vertice);
             }
         }
-    
-        return caminhosEncontrados;
+
+        return moviesInGraph;
     }
 
-    encontrarRelacionamentosProximosRepeticaoLivre(ator1, ator2, limite = 8) {
+    encontrarTodosOsCaminhos(ator1, ator2, maxTamanho) {
         const fila = [[ator1]];
-    
-        const caminhosEncontrados = [];
+        const caminhos = [];
     
         while (fila.length > 0) {
             const caminho = fila.shift();
             const ultimoVertice = caminho[caminho.length - 1];
     
-            if (caminho.length > limite + 1) {
+            if (ultimoVertice === ator2 && caminho.length <= maxTamanho) {
+                caminhos.push(caminho);
                 continue;
             }
     
-            if (ultimoVertice === ator2) {
-                caminhosEncontrados.push(caminho);
-                console.log(caminhosEncontrados.length);
+            // Se o caminho já excede o tamanho máximo, não continue
+            if (caminho.length >= maxTamanho) {
+                continue;
             }
-            else {
-                process.stdout.write(".");
-            }
-            
-
     
-            for (let vizinho in this.vertices[ultimoVertice]) {
-                    const novoCaminho = [...caminho, vizinho];
-                    fila.push(novoCaminho);
+            // Adiciona todos os vizinhos à fila para continuar a busca
+            for (const vizinho in this.vertices[ultimoVertice]) {
+                const novoCaminho = [...caminho, vizinho]; // Cria um novo caminho
+                fila.push(novoCaminho); // Adiciona o novo caminho à fila
             }
         }
     
-        return caminhosEncontrados;
+        return caminhos; // Retorna todos os caminhos encontrados
     }
 
     encontrarRelacionamentosProximosSemRepetirAtores(ator1, ator2, actors, limite = 8) {
@@ -291,34 +204,7 @@ class Grafo {
     
         return caminhosEncontrados;
     }
-
-    getAllActorsInGraph(actors) {
-        const actorsInGraph = [];
-
-        for (const vertice in this.vertices) {
-            if (actors.includes(vertice)) {
-                actorsInGraph.push(vertice);
-            }
-        }
-
-        return actorsInGraph;
-    }
-
-    getAllMoviesInGraph(movies) {
-        const moviesInGraph = [];
-        const movieSet = new Set();
-        movies.forEach(element => {            
-            movieSet.add(element.title);
-        });
-
-        for (const vertice in this.vertices) {
-            if (movieSet.has(vertice)) {
-                moviesInGraph.push(vertice);
-            }
-        }
-
-        return moviesInGraph;
-    }
+    
 }
 
 function getUniqueActors(movies) {
@@ -341,7 +227,7 @@ fs.readFile('./latest_movies.json', 'utf8', (err, data) => {
         return;
     }
 
-    const filmes = JSON.parse(data);
+    const filmes = JSON.parse(data);    
     const actors = getUniqueActors(filmes);
     const grafo = new Grafo();
 
@@ -354,48 +240,43 @@ fs.readFile('./latest_movies.json', 'utf8', (err, data) => {
         });
     });
 
-    const ator1 = "Zendaya";
-    const ator2 = "John Cena";
+    const ator1 = "Tom Holland";
+    const ator2 = "Emma Stone";
 
+    console.log("Grafo inicial:");
     console.log(`Número de atores: ${grafo.getAllActorsInGraph(actors).length}`);
     console.log(`Número de filmes: ${grafo.getAllMoviesInGraph(filmes).length}`);
-    console.log(`Número total de vértices: ${filmes.length + actors.length}`);
-
+    console.log(`Número total de vértices no grafo completo: ${filmes.length + actors.length}`);
     console.log(`Fator de ramificação: ${grafo.calcularFatorDeRamificacao()}`);
     console.log(`Profundidade: ${grafo.calcularProfundidade()}`);
-
     console.log("+++++++++++++++++++++++++++++");
-
-    let subgraph = grafo.extrairSubgrafo("Zendaya", 8);
+    console.log(`Subgrafo com profundidade 8 a partir de ${ator1}:`);
+    let subgraph = grafo.extrairSubgrafo(ator1, 8);
     console.log(`Fator de ramificação: ${subgraph.calcularFatorDeRamificacao()}`);
     console.log(`Profundidade: ${subgraph.calcularProfundidade()}`);
-
-    console.log("+++++++++++++++++++++++++++++");
-
     const actorsInSubgraph = subgraph.getAllActorsInGraph(actors);
     const moviesInSubgraph = subgraph.getAllMoviesInGraph(filmes);
     console.log("QUANTIDADE DE ATORES NO SUBGRAFO: "+actorsInSubgraph.length);
     console.log("QUANTIDADE DE FILMES NO SUBGRAFO: "+moviesInSubgraph.length);
+    console.log(`Número total de vértices no subgrafo: ${actorsInSubgraph.length + moviesInSubgraph.length}`);
+    console.log("+++++++++++++++++++++++++++++");
+    console.log(`No subgrafo de ${ator1}, encontrar todos caminhos com até 8 de profundidade:`);
+    const paths = subgraph.encontrarRelacionamentosProximosSemRepetirAtores(ator1, ator2, subgraph.getAllActorsInGraph(actors), 8);
+    console.log(`Qntd de caminhos encontrados: ${paths.length}`);
+    saveResultToFile(paths);
 
-    const subRelation = subgraph.encontrarRelacionamentosProximosSemRepetirAtorInicialEFinal(ator1, ator2, 8);
-    console.log("QUANTIDADE DE CAMINHO NO SUBGRAFO: "+subRelation.length);
-
-    //const relaci8 = grafo.encontrarRelacionamentosProximosSemRepetir(ator1, ator2, 8);
-    //.log("QUANTIDADE DE RESULTADOS (SEM REPETIR): "+relaci8.length);
-
-    
-
-    //const relaci8_3 = grafo.encontrarRelacionamentosProximosSemRepetirAtores(ator1, ator2, actors, 8);
-    //console.log("QUANTIDADE DE RESULTADOS (SEM REPETIR ATORES): "+relaci8_3.length);
-
-    // const relaci8_2 = grafo.encontrarRelacionamentosProximosSemRepetirAtorInicialEFinal(ator1, ator2, 8);
-    // console.log("QUANTIDADE DE RESULTADOS (SEM REPETIR ATOR FINAL E INICIAL): "+relaci8_2.length);
-
-    // const relaci8_4 = grafo.encontrarRelacionamentosProximosRepeticaoLivre(ator1, ator2, 8);
-    // console.log("QUANTIDADE DE RESULTADOS (REPETIÇÕES LIVRES): "+relaci8_4.length);
-
-    
-    
-    
-    
 });
+
+
+function saveResultToFile(dataToSave) {
+
+    const stringData = dataToSave.join('\n');
+
+    fs.writeFile('output.txt', stringData, (err) => {
+        if (err) {
+            console.error('Error writing to file:', err);
+        } else {
+            console.log('Data saved to output.txt');
+        }
+    });
+}
