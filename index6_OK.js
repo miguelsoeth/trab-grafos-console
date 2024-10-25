@@ -198,12 +198,12 @@ fs.readFile('./latest_movies.json', 'utf8', (err, data) => {
     console.log(`Big O: ${grafo.bigO()}`);     
     console.log("+++++++++++++++++++++++++++++");
     console.log(`No grafo encontrar ${ator1}-${ator2}: todos caminhos com até 8 de profundidade:`);
-    //const todosCaminhos = grafo.encontrarTodosCaminhos(ator1, ator2, 8);
-    //console.log(`Caminhos encontrados entre ${ator1} e ${ator2} com até 8 de profundidade:`);
-    //console.log("QNTD: "+todosCaminhos.length);
+    const todosCaminhos = grafo.encontrarTodosCaminhos(ator1, ator2, 8);
+    console.log(`Caminhos encontrados entre ${ator1} e ${ator2} com até 8 de profundidade:`);
+    console.log("QNTD: "+todosCaminhos.length);
     //console.log(grafo.mostraLista());
 
-    //saveResultToFile(todosCaminhos.map(caminho => caminho.join(' -> ')));
+    saveResultToFile(todosCaminhos.map(caminho => caminho.join(' -> ')));
 });
 
 
