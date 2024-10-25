@@ -44,35 +44,42 @@ class Grafo {
 
     // Function to find paths in the graph from source to destination
     findPaths(src, dst, maxDepth = 9) {
-        let caminhosEncontrados = [];
-        let q = []; // Queue to store paths
-        let path = [src];
-        q.push([...path]);
-    
-        while (q.length) {
-            path = q.shift();
-            let last = path[path.length - 1];
-    
-            // If last vertex is the desired destination then print the path
-            if (last === dst) {
-                //this.printPath(path);
-                caminhosEncontrados.push(path);
-            }
+        const caminhosEncontrados = [];
+        const q = []; // Queue to store paths
+        q.push([src]); // Start with the source vertex
 
-            console.log(q.length);
-    
-            // If the current path length exceeds maxDepth, skip further exploration
-            if (path.length >= maxDepth) {
-                continue; // Do not add further paths from this one
-            }
-    
-            // Traverse to all the nodes connected to the current vertex
-            for (let neighbor in this.vertices[last]) {
-                if (this.isNotVisited(neighbor, path)) {
-                    let newPath = [...path, neighbor];
-                    q.push(newPath);
+        let depth = 0;
+
+        while (q.length) {
+            const levelSize = q.length; // Number of paths at the current depth
+            console.log(`Depth ${depth}:`);
+
+            for (let i = 0; i < levelSize; i++) {
+                const path = q.shift(); // Get the current path
+                const last = path[path.length - 1]; // Get the last vertex in the path
+
+                // If last vertex is the desired destination, add the path to results
+                if (last === dst) {
+                    this.printPath(path);
+                    caminhosEncontrados.push(path);
+                }
+
+                // If the current path length exceeds maxDepth, skip further exploration
+                if (path.length >= maxDepth) {
+                    continue; // Do not add further paths from this one
+                }
+
+                // Traverse to all the nodes connected to the current vertex
+                const neighbors = this.vertices[last] || [];
+                for (const neighbor of neighbors) {
+                    if (this.isNotVisited(neighbor, path)) {
+                        const newPath = [...path, neighbor];
+                        q.push(newPath);
+                    }
                 }
             }
+
+            depth++; // Increment depth after processing all paths at the current level
         }
 
         return caminhosEncontrados;
