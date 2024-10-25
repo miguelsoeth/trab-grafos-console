@@ -1,0 +1,160 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using Newtonsoft.Json;
+
+// Movie represents a movie with its title and cast.
+public class Movie
+{
+    public string Title { get; set; }
+    public List<string> Cast { get; set; }
+}
+
+// Graph represents a graph using an adjacency list.
+public class Graph
+{
+    public Dictionary<string, List<string>> AdjacencyList { get; private set; }
+
+    public Graph()
+    {
+        AdjacencyList = new Dictionary<string, List<string>>();
+    }
+
+    // AddVertex adds a vertex to the graph.
+    public void AddVertex(string vertex)
+    {
+        if (!AdjacencyList.ContainsKey(vertex))
+        {
+            AdjacencyList[vertex] = new List<string>();
+        }
+    }
+
+    // AddEdge adds an edge between two vertices.
+    public void AddEdge(string vertex1, string vertex2)
+    {
+        if (!AdjacencyList.ContainsKey(vertex1)) AddVertex(vertex1);
+        if (!AdjacencyList.ContainsKey(vertex2)) AddVertex(vertex2);
+        AdjacencyList[vertex1].Add(vertex2);
+        AdjacencyList[vertex2].Add(vertex1);
+    }
+
+    // Size returns the number of vertices in the graph.
+    public int Size()
+    {
+        return AdjacencyList.Count;
+    }
+
+    // FindShortestPaths finds the shortest paths between two actors.
+    public List<List<string>> FindShortestPaths(string actor1, string actor2)
+    {
+        var queue = new Queue<List<string>>();
+        queue.Enqueue(new List<string> { actor1 });
+        var visited = new HashSet<string> { actor1 };
+        var paths = new List<List<string>>();
+
+        while (queue.Count > 0)
+        {
+            var currentPath = queue.Dequeue();
+            var currentVertex = currentPath[^1];
+
+            // Limit path length to 8 edges (9 vertices)
+            if (currentPath.Count > 9)
+                continue;
+
+            if (currentVertex == actor2)
+            {
+                paths.Add(new List<string>(currentPath));
+                Console.WriteLine(paths.Count);
+                continue;
+            }
+
+            foreach (var neighbor in AdjacencyList[currentVertex])
+            {
+                // Only add to the new path if neighbor is not already in the current path to prevent cycles
+                if (!currentPath.Contains(neighbor))
+                {
+                    var newPath = new List<string>(currentPath) { neighbor };
+                    queue.Enqueue(newPath);
+
+                    // Mark neighbor as visited only within this path's context to allow for path exploration
+                    if (!visited.Contains(neighbor) && newPath.Count < 9)
+                    {
+                        visited.Add(neighbor);
+                    }
+                }
+            }
+        }
+
+        if (paths.Count > 0)
+        {
+            Console.WriteLine($"Shortest paths between {actor1} and {actor2}:");
+            Console.WriteLine(paths.Count);
+            return paths;
+        }
+        else
+        {
+            Console.WriteLine($"No relationship between {actor1} and {actor2}");
+            return paths;
+        }
+    }
+}
+
+class Program
+{
+    public static void SaveResultToFile(List<List<string>> dataToSave)
+    {
+        string projectDirectory = Directory.GetParent(AppContext.BaseDirectory)?.Parent?.Parent?.Parent?.FullName;
+        string filePath = Path.Combine(projectDirectory ?? "", "output_csharp.txt");
+        var lines = new List<string>();
+
+        foreach (var list in dataToSave)
+        {
+            string line = string.Join(", ", list);
+            lines.Add(line);
+        }
+        
+        try
+        {
+            File.WriteAllLines(filePath, lines);
+            Console.WriteLine($"Data saved to {filePath}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error writing to file: {ex.Message}");
+        }
+    }
+    
+    static void Main()
+    {
+        var jsonData = File.ReadAllText("./latest_movies.json");
+
+        List<Movie> movies;
+        try
+        {
+            movies = JsonConvert.DeserializeObject<List<Movie>>(jsonData);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error parsing JSON: {ex.Message}");
+            return;
+        }
+
+        var graph = new Graph();
+
+        foreach (var movie in movies)
+        {
+            graph.AddVertex(movie.Title);
+            foreach (var actor in movie.Cast)
+            {
+                graph.AddVertex(actor);
+                graph.AddEdge(movie.Title, actor);
+            }
+        }
+
+        string actor1 = "John Cena";
+        string actor2 = "Will Poulter";
+        Console.WriteLine($"Graph size: {graph.Size()}");
+        var result = graph.FindShortestPaths(actor1, actor2);
+        SaveResultToFile(result);
+    }
+}
